@@ -95,6 +95,15 @@ def search():
         game_page_soup = BeautifulSoup(game_page_response.text, 'html.parser')
         download_link = game_page_soup.select_one('a.btn-download')['href']
 
+        # Check if game already exists in the database
+        existing_game = Game.query.filter_by(title=game_title).first()
+        if existing_game:
+            return jsonify({
+                'title': existing_game.title,
+                'link': existing_game.link,
+                'downloadLink': existing_game.download_link
+            })
+
         # Save to database
         new_game = Game(
             title=game_title,
@@ -113,7 +122,7 @@ def search():
         return jsonify({'error': f'Network error: {str(e)}'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
+        
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
