@@ -2,14 +2,19 @@ from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import os
+import requests  # Add this import
+from bs4 import BeautifulSoup  # Add this import
 from requests.exceptions import RequestException
 from requests.utils import quote
-import requests
 
+# Initialize Flask app
 app = Flask(__name__)
+
+# Configure SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///games.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Initialize SQLAlchemy
 db = SQLAlchemy(app)
 
 # Database Models
@@ -25,7 +30,7 @@ class RequestLog(db.Model):
     client_ip = db.Column(db.String(45))  # For IPv4 addresses
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-# Initialize database
+# Initialize database tables
 with app.app_context():
     db.create_all()
 
@@ -48,6 +53,7 @@ def is_rate_limited():
     
     return False
 
+# Routes
 @app.route('/')
 def index():
     games = Game.query.order_by(Game.timestamp.desc()).all()
