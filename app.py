@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -20,8 +20,12 @@ class Game(db.Model):
     download_link = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime, server_default=db.func.now())
 
-# Rate limiter (5 requests per minute per IP)
-limiter = Limiter(app, key_func=get_remote_address, default_limits=["5 per minute"])
+# Rate limiter (5 requests per minute per IP) for v1.x syntax
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["5/minute"]
+)
 
 # Initialize database
 with app.app_context():
@@ -29,7 +33,6 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    # Fetch all games from the database
     games = Game.query.order_by(Game.timestamp.desc()).all()
     return render_template('list.html', games=games)
 
@@ -37,7 +40,7 @@ def index():
 def search_ui():
     return send_from_directory(os.getcwd(), 'index.html')
 
-@app.route('/api/search', methods=['GET'])
+@app.route('/api/search')
 @limiter.limit("5/minute")  # Apply rate limit
 def search():
     game_name = request.args.get('game')
