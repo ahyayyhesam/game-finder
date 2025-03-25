@@ -1,50 +1,105 @@
-<!-- Keep the original index.html but update the form action to use the new API -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- ... (existing head content) ... -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* Original Theme from index.html */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a, #333333, #000000);
+            font-family: 'Press Start 2P', sans-serif;
+            overflow: auto;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            background: rgba(25, 25, 25, 0.9);
+            border-radius: 25px;
+            box-shadow: 0 0 20px rgba(100, 100, 100, 0.5);
+            text-align: center;
+        }
+
+        h2 {
+            color: #b0b0b0;
+            margin-bottom: 20px;
+            font-size: 24px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(200, 200, 200, 0.7);
+        }
+
+        .game-item {
+            background: rgba(20, 20, 20, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(100, 100, 100, 0.5);
+        }
+
+        .game-name {
+            color: #c0c0c0;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .download-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #555555, #222222);
+            color: #e0e0e0;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s, background 0.3s ease;
+            box-shadow: 0 0 15px rgba(100, 100, 100, 0.6);
+            margin: 5px;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(150, 150, 150, 0.9);
+            background: linear-gradient(90deg, #222222, #555555);
+        }
+
+        .download-btn:active {
+            transform: scale(0.9);
+        }
+
+        .no-games {
+            color: #b0b0b0;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2>Search for a Game</h2>
-        <form id="searchForm">
-            <input type="text" id="gameName" placeholder="Enter game name" required>
-            <button type="submit" class="download-btn">Search</button>
-        </form>
-        <div id="loading">Loading...</div>
-        <div id="results"></div>
+        <h2>Previously Searched Games</h2>
+        
+        {% if games %}
+            {% for game in games %}
+                <div class="game-item">
+                    <div class="game-name">{{ game.title }}</div>
+                    <button class="download-btn" onclick="window.open('{{ game.link }}', '_blank')">View</button>
+                    <button class="download-btn" onclick="window.open('{{ game.download_link }}', '_blank')">Download</button>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-games">No games have been searched yet!</p>
+        {% endif %}
     </div>
-
-    <script>
-        document.getElementById('searchForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const gameName = document.getElementById('gameName').value;
-            const resultsDiv = document.getElementById('results');
-            const loadingDiv = document.getElementById("loading");
-
-            resultsDiv.innerHTML = "";
-            loadingDiv.style.display = "block";
-
-            try {
-                const response = await fetch(`/api/search?game=${encodeURIComponent(gameName)}`);
-                const data = await response.json();
-                loadingDiv.style.display = "none";
-
-                if (data.error) {
-                    resultsDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
-                } else {
-                    resultsDiv.innerHTML = `
-                        <div class="client-item">
-                            <div class="client-name"><strong>Title:</strong> ${data.title}</div>
-                            <button class="download-btn" onclick="window.open('${data.downloadLink}', '_blank')">Download</button>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                loadingDiv.style.display = "none";
-                resultsDiv.innerHTML = `<p style="color: red;">Failed to fetch results.</p>`;
-            }
-        });
-    </script>
 </body>
 </html>
