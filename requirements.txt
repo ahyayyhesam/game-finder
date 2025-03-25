@@ -1,6 +1,6 @@
-Flask==3.0.2
-Flask-SQLAlchemy==3.1.1
-Flask-Limiter==3.2.1
-beautifulsoup4==4.12.3
-requests==2.31.0
-SQLAlchemy==2.0.23
+Flask
+Flask-SQLAlchemy
+Flask-Limiter
+beautifulsoup4
+requests
+SQLAlchemy
