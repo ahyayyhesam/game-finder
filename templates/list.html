@@ -42,8 +42,11 @@
         }
 
         .game-item {
+            display: flex; /* Align items side by side */
+            justify-content: space-between; /* Space between title and button */
+            align-items: center; /* Vertically center align */
             background: rgba(20, 20, 20, 0.8);
-            padding: 20px;
+            padding: 15px; /* Reduced padding for better spacing */
             border-radius: 15px;
             margin-bottom: 15px;
             box-shadow: 0 0 10px rgba(100, 100, 100, 0.5);
@@ -51,8 +54,9 @@
 
         .game-name {
             color: #c0c0c0;
-            margin-bottom: 10px;
             font-size: 16px;
+            flex-grow: 1; /* Allow title to take up available space */
+            text-align: left; /* Align text to the left */
         }
 
         .download-btn {
@@ -66,7 +70,7 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.3s, background 0.3s ease;
             box-shadow: 0 0 15px rgba(100, 100, 100, 0.6);
-            margin: 5px;
+            margin-left: 10px; /* Add spacing between title and button */
         }
 
         .download-btn:hover {
