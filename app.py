@@ -67,7 +67,43 @@ def search():
         return jsonify({'error': 'No game name provided'}), 400
 
     try:
-        # ... (rest of your scraping logic remains the same) ...
+        # Encode the game name for the URL
+        encoded_name = quote(game_name)
+        response = requests.get(f'https://gogunlocked.com/?s={encoded_name}')
+        response.raise_for_status()
+
+        # Parse search results
+        soup = BeautifulSoup(response.text, 'html.parser')
+        first_result = soup.select_one('.cover-item')
+
+        if not first_result:
+            return jsonify({'error': 'No results found'}), 404
+
+        game_link = first_result.select_one('.cover-item-image a')['href']
+        game_title = first_result.select_one('.cover-item-content__title a').text.strip()
+
+        # Fetch download link
+        game_page_response = requests.get(game_link)
+        game_page_response.raise_for_status()
+        game_page_soup = BeautifulSoup(game_page_response.text, 'html.parser')
+        download_link = game_page_soup.select_one('a.btn-download')['href']
+
+        # Save to database
+        new_game = Game(
+            title=game_title,
+            link=game_link,
+            download_link=download_link
+        )
+        db.session.add(new_game)
+        db.session.commit()
+
+        return jsonify({
+            'title': game_title,
+            'link': game_link,
+            'downloadLink': download_link
+        })
+    except RequestException as e:
+        return jsonify({'error': f'Network error: {str(e)}'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
