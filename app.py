@@ -41,5 +41,5 @@ def search():
         return jsonify({'error': 'Failed to fetch results from GOG Unlocked'}), 500
 
 if __name__ == '__main__':
-    # Run the Flask app on port 3000
-    app.run(debug=True, port=3000)
+    port = int(os.getenv("PORT", 5000))  # Default to 5000 if PORT is not set  
+    app.run(host="0.0.0.0", port=port)
