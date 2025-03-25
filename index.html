@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game List</title>
+    <title>Game Search</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        /* Original Theme from index.html */
+        /* Retro Theme from List Page */
         * {
             margin: 0;
             padding: 0;
@@ -41,18 +41,17 @@
             text-shadow: 0 0 10px rgba(200, 200, 200, 0.7);
         }
 
-        .game-item {
-            background: rgba(20, 20, 20, 0.8);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 0 10px rgba(100, 100, 100, 0.5);
-        }
-
-        .game-name {
-            color: #c0c0c0;
+        input {
+            width: 80%;
+            padding: 10px;
             margin-bottom: 10px;
-            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #222;
+            color: #ddd;
+            outline: none;
+            text-align: center;
         }
 
         .download-btn {
@@ -66,7 +65,6 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.3s, background 0.3s ease;
             box-shadow: 0 0 15px rgba(100, 100, 100, 0.6);
-            margin: 5px;
         }
 
         .download-btn:hover {
@@ -79,27 +77,85 @@
             transform: scale(0.9);
         }
 
-        .no-games {
+        #loading {
+            display: none;
             color: #b0b0b0;
+            margin-top: 10px;
+        }
+
+        #results {
             margin-top: 20px;
+        }
+
+        .client-item {
+            background: rgba(20, 20, 20, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(100, 100, 100, 0.5);
+        }
+
+        .client-name {
+            color: #c0c0c0;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .client-name strong {
+            color: #b0b0b0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Previously Searched Games</h2>
-        
-        {% if games %}
-            {% for game in games %}
-                <div class="game-item">
-                    <div class="game-name">{{ game.title }}</div>
-                    <button class="download-btn" onclick="window.open('{{ game.link }}', '_blank')">View</button>
-                    <button class="download-btn" onclick="window.open('{{ game.download_link }}', '_blank')">Download</button>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p class="no-games">No games have been searched yet!</p>
-        {% endif %}
+        <h2>Search for a Game</h2>
+        <form id="searchForm">
+            <input type="text" id="gameName" placeholder="Enter game name" required>
+            <button type="submit" class="download-btn">Search</button>
+        </form>
+        <div id="loading">Loading...</div>
+        <div id="results"></div>
     </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const gameName = document.getElementById('gameName').value;
+            const resultsDiv = document.getElementById('results');
+            const loadingDiv = document.getElementById("loading");
+            
+            resultsDiv.innerHTML = "";
+            loadingDiv.style.display = "block";  // Show loading indicator
+
+            try {
+                const response = await fetch(`/api/search?game=${encodeURIComponent(gameName)}`);
+                const data = await response.json();
+                loadingDiv.style.display = "none";  // Hide loading indicator
+
+                if (data.error) {
+                    resultsDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="client-item">
+                            <div class="client-name"><strong>Title:</strong> ${data.title}</div>
+                            <button class="download-btn" onclick="window.open('${data.downloadLink}', '_blank')">Download</button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                loadingDiv.style.display = "none";  // Hide loading indicator
+                resultsDiv.innerHTML = `<p style="color: red;">Failed to fetch results. Please try again later.</p>`;
+            }
+        });
+
+        // Enable Enter key to trigger search
+        document.getElementById('gameName').addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.querySelector(".download-btn").click();
+            }
+        });
+    </script>
 </body>
 </html>
