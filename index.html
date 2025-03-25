@@ -6,7 +6,7 @@
     <title>Game Search</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        /* CSS Styles */
+        /* General Styles */
         * {
             margin: 0;
             padding: 0;
@@ -18,7 +18,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background: linear-gradient(135deg, #1a1a1a, #333333, #000000);
             font-family: 'Press Start 2P', sans-serif;
             overflow: auto;
         }
@@ -27,22 +27,18 @@
             width: 100%;
             max-width: 600px;
             padding: 30px;
-            background: rgba(15, 15, 25, 0.9);
+            background: rgba(25, 25, 25, 0.9);
             border-radius: 25px;
-            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+            box-shadow: 0 0 20px rgba(100, 100, 100, 0.5);
             text-align: center;
         }
 
         h2 {
-            color: #ff00ff;
+            color: #b0b0b0;
             margin-bottom: 20px;
             font-size: 24px;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(255, 0, 255, 0.7);
-        }
-
-        form {
-            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(200, 200, 200, 0.7);
         }
 
         input {
@@ -52,30 +48,39 @@
             border: none;
             border-radius: 10px;
             font-size: 14px;
+            background: #222;
+            color: #ddd;
             outline: none;
+            text-align: center;
         }
 
         .download-btn {
             padding: 10px 20px;
             border: none;
             border-radius: 10px;
-            background: linear-gradient(90deg, #ff00ff, #00ffcc);
-            color: #1a1a2e;
+            background: linear-gradient(90deg, #555555, #222222);
+            color: #e0e0e0;
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.3s, background 0.3s ease;
-            box-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
+            box-shadow: 0 0 15px rgba(100, 100, 100, 0.6);
         }
 
         .download-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 25px rgba(138, 43, 226, 0.9);
-            background: linear-gradient(90deg, #00ffcc, #ff00ff);
+            box-shadow: 0 0 25px rgba(150, 150, 150, 0.9);
+            background: linear-gradient(90deg, #222222, #555555);
         }
 
         .download-btn:active {
             transform: scale(0.9);
+        }
+
+        #loading {
+            display: none;
+            color: #b0b0b0;
+            margin-top: 10px;
         }
 
         #results {
@@ -83,21 +88,21 @@
         }
 
         .client-item {
-            background: rgba(15, 15, 25, 0.8);
+            background: rgba(20, 20, 20, 0.8);
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 15px;
-            box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+            box-shadow: 0 0 10px rgba(100, 100, 100, 0.5);
         }
 
         .client-name {
-            color: #e0e0ff;
+            color: #c0c0c0;
             margin-bottom: 10px;
             font-size: 14px;
         }
 
         .client-name strong {
-            color: #ff00ff;
+            color: #b0b0b0;
         }
     </style>
 </head>
@@ -108,20 +113,25 @@
             <input type="text" id="gameName" placeholder="Enter game name" required>
             <button type="submit" class="download-btn">Search</button>
         </form>
+        <div id="loading">Loading...</div>
         <div id="results"></div>
     </div>
 
     <script>
-        // JavaScript
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const gameName = document.getElementById('gameName').value;
             const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '<p>Loading...</p>';
+            const loadingDiv = document.getElementById("loading");
+            
+            resultsDiv.innerHTML = "";
+            loadingDiv.style.display = "block";  // Show loading indicator
 
             try {
                 const response = await fetch(`/search?game=${encodeURIComponent(gameName)}`);
                 const data = await response.json();
+                loadingDiv.style.display = "none";  // Hide loading indicator
 
                 if (data.error) {
                     resultsDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
@@ -134,7 +144,16 @@
                     `;
                 }
             } catch (error) {
+                loadingDiv.style.display = "none";  // Hide loading indicator
                 resultsDiv.innerHTML = `<p style="color: red;">Failed to fetch results. Please try again later.</p>`;
+            }
+        });
+
+        // Enable Enter key to trigger search
+        document.getElementById('gameName').addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.querySelector(".download-btn").click();
             }
         });
     </script>
