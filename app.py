@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import os
 from requests.exceptions import RequestException
 from requests.utils import quote
+import requests
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///games.db'
